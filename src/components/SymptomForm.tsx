@@ -19,10 +19,21 @@ export default function SymptomForm({ onSubmit, isLoading, followUpQuestion }: S
     }
   }, [followUpQuestion]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = () => {
     if (symptoms.trim()) {
       onSubmit(symptoms, device);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submit();
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submit();
     }
   };
 
@@ -36,6 +47,7 @@ export default function SymptomForm({ onSubmit, isLoading, followUpQuestion }: S
           id="symptoms"
           value={symptoms}
           onChange={(e) => setSymptoms(e.target.value)}
+          onKeyDown={handleKeyDown}
           placeholder={followUpQuestion ? "Your answer..." : "Describe your symptoms (e.g., splitting headache, feeling lethargic...)"}
           className="w-full p-5 border-none bg-stone-100/50 rounded-2xl shadow-inner focus:ring-2 focus:ring-emerald-400 focus:bg-white transition-all min-h-[160px] text-stone-800 placeholder-stone-400 resize-none text-lg"
           required
