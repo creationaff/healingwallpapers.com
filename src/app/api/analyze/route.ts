@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 
 // Initialize Gemini API client only if a key is present
 const genAI = process.env.GEMINI_API_KEY
   ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+  : null;
+
+// Initialize OpenAI client only if a key is present
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
 type Analysis = {
@@ -87,27 +93,19 @@ export async function POST(request: Request) {
   try {
     const { symptoms, history = [] } = await request.json();
 
-    // If Gemini is not configured, immediately use fallback logic
-    if (!genAI) {
-      console.warn('GEMINI_API_KEY is not set. Using rule-based fallback.');
-      const fallback = ruleBasedFallback(symptoms);
-      return NextResponse.json(fallback);
+    let analysis: Analysis | null = null;
+
+    let contextString = '';
+    if (history.length > 0) {
+      contextString =
+        'Previous Q&A History:\n' +
+        history
+          .map((h: any) => `Q: ${h.question}\nA: ${h.answer}`)
+          .join('\n') +
+        '\n\n';
     }
 
-    try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-      let contextString = '';
-      if (history.length > 0) {
-        contextString =
-          'Previous Q&A History:\n' +
-          history
-            .map((h: any) => `Q: ${h.question}\nA: ${h.answer}`)
-            .join('\n') +
-          '\n\n';
-      }
-
-      const prompt = `
+    const prompt = `
         You are an expert holistic healer and diagnostician. 
         User Symptoms: "${symptoms}"
         ${contextString}
@@ -130,23 +128,60 @@ export async function POST(request: Request) {
         }
       `;
 
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-
-      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      const analysis = JSON.parse(cleanJson) as Analysis;
-
-      // Basic validation – if required fields are missing, fall back
-      if (!analysis.sickness || typeof analysis.probability !== 'number') {
-        throw new Error('AI response missing required fields');
+    // 1) Try Gemini first (if configured)
+    if (genAI) {
+      try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text();
+        const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleanJson) as Analysis;
+        if (parsed.sickness && typeof parsed.probability === 'number') {
+          analysis = parsed;
+        } else {
+          throw new Error('Gemini response missing required fields');
+        }
+      } catch (aiError) {
+        console.error('Gemini AI error, will try OpenAI next:', aiError);
       }
-
-      return NextResponse.json(analysis);
-    } catch (aiError) {
-      console.error('Gemini AI error, using fallback analysis:', aiError);
-      const fallback = ruleBasedFallback(symptoms);
-      return NextResponse.json(fallback);
     }
+
+    // 2) If Gemini failed or not configured, try OpenAI (if configured)
+    if (!analysis && openai) {
+      try {
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are an expert holistic healer and diagnostician. Always respond with pure JSON, no markdown.',
+            },
+            { role: 'user', content: prompt },
+          ],
+          response_format: { type: 'json_object' },
+        });
+
+        const message = completion.choices[0]?.message?.content;
+        if (!message) throw new Error('Empty response from OpenAI');
+
+        const parsed = JSON.parse(message) as Analysis;
+        if (parsed.sickness && typeof parsed.probability === 'number') {
+          analysis = parsed;
+        } else {
+          throw new Error('OpenAI response missing required fields');
+        }
+      } catch (openAiError) {
+        console.error('OpenAI error, will fall back to rule-based:', openAiError);
+      }
+    }
+
+    // 3) Final fallback: rule-based analysis (never fails)
+    if (!analysis) {
+      analysis = ruleBasedFallback(symptoms);
+    }
+
+    return NextResponse.json(analysis);
   } catch (error) {
     console.error('Analysis fatal error:', error);
     const fallback = ruleBasedFallback(''); // very generic
