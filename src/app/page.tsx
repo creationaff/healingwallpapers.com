@@ -25,6 +25,7 @@ export default function Home() {
   const [device, setDevice] = useState('iphone');
   const [symptoms, setSymptoms] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [hasAskedFollowup, setHasAskedFollowup] = useState(false);
 
   const handleAnalyze = async (input: string, selectedDevice: string) => {
     setIsLoading(true);
@@ -34,6 +35,7 @@ export default function Home() {
     if (!result?.question) {
         setSymptoms(input);
         setDevice(selectedDevice);
+        setHasAskedFollowup(false);
     }
 
     // If answering a follow-up, add to history
@@ -59,8 +61,16 @@ export default function Home() {
       
       if (!response.ok) throw new Error('Analysis failed');
       
-      const data = await response.json();
-      setResult(data);
+      const data: AnalysisResult = await response.json();
+
+      // Only allow ONE follow-up round. After we've already asked once,
+      // ignore any further question field and go straight to results.
+      if (data.question && !hasAskedFollowup) {
+        setHasAskedFollowup(true);
+        setResult(data);
+      } else {
+        setResult({ ...data, question: undefined });
+      }
     } catch (error) {
       console.error(error);
       alert('Something went wrong. Please try again.');
