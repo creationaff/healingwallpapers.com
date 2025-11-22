@@ -185,6 +185,18 @@ export async function POST(request: Request) {
       analysis = ruleBasedFallback(symptoms);
     }
 
+    // Ensure we always have useful modalities, even if the AI left them empty
+    if (
+      !Array.isArray(analysis.modalities) ||
+      analysis.modalities.length === 0
+    ) {
+      const fallback = ruleBasedFallback(symptoms);
+      analysis = {
+        ...analysis,
+        modalities: fallback.modalities,
+      };
+    }
+
     return NextResponse.json(analysis);
   } catch (error) {
     console.error('Analysis fatal error:', error);
