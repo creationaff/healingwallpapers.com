@@ -9,15 +9,19 @@ export async function POST(request: Request) {
     await mockDelay(1000);
 
     // Determine dimensions based on device
-    let width = 1080;
-    let height = 1920; // iPhone/Mobile default
+    // Use tall, high‑resolution sizes so most modern phones (iPhone & Samsung)
+    // can crop/scale cleanly when setting the wallpaper.
+    let width = 1290;
+    let height = 2796; // iPhone 15 Pro Max class – ~19.5:9
     
     if (device === 'desktop') {
       width = 1920;
       height = 1080;
     } else if (device === 'android') {
-      width = 1080;
-      height = 2400; 
+      // Common modern Android ratio (e.g. 1080x2400, 1440x3200). This scales well
+      // across Samsung and other tall displays.
+      width = 1440;
+      height = 3200; 
     }
 
     // Prepare params for the image generation route
