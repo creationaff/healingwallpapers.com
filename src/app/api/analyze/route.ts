@@ -9,10 +9,7 @@ export async function POST(request: Request) {
     const { symptoms, history = [] } = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
-      // Fallback for demo if no key is present, or throw error
       console.warn("Missing GEMINI_API_KEY");
-      // You might want to return a mock response or error here
-      // For now, let's return a friendly error to the UI
       return NextResponse.json({ 
         sickness: "Configuration Error",
         probability: 0,
@@ -21,7 +18,11 @@ export async function POST(request: Request) {
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Use specific generation config to enforce JSON
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      generationConfig: { responseMimeType: "application/json" }
+    });
 
     // Construct conversation history for context
     let contextString = "";
@@ -38,10 +39,10 @@ export async function POST(request: Request) {
       
       Task:
       1. Estimate the probability (0-100%) that you have correctly identified the condition based ONLY on the information provided.
-      2. If probability is < 95%, formulate a SINGLE, specific follow-up question to narrow down the diagnosis (e.g., asking about specific pain location, duration, accompanying symptoms like fever, etc.).
-      3. If probability is >= 95% OR if you have enough info, provide the diagnosis, a set of 4-6 natural healing modalities (herbs, teas, foods, oils, lifestyle changes), and a brief explanation.
+      2. If probability is < 95%, formulate a SINGLE, specific follow-up question to narrow down the diagnosis.
+      3. If probability is >= 95% OR if you have enough info, provide the diagnosis, a set of 4-6 natural healing modalities.
       
-      Return ONLY a JSON object with this exact structure (no markdown formatting):
+      Output Schema:
       {
         "sickness": "Name of condition",
         "probability": number,
@@ -54,15 +55,28 @@ export async function POST(request: Request) {
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
-    // Clean up markdown code blocks if present
-    const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-    
-    const analysis = JSON.parse(cleanJson);
+    try {
+      // Attempt to parse directly first
+      const analysis = JSON.parse(responseText);
+      return NextResponse.json(analysis);
+    } catch (parseError) {
+      console.error("JSON Parse Error. Raw response:", responseText);
+      
+      // Fallback cleanup if JSON mode didn't work perfectly (rare with responseMimeType set)
+      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      try {
+         const analysis = JSON.parse(cleanJson);
+         return NextResponse.json(analysis);
+      } catch (retryError) {
+         throw new Error("Failed to parse AI response");
+      }
+    }
 
-    return NextResponse.json(analysis);
-
-  } catch (error) {
-    console.error('Analysis error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Analysis error details:', error);
+    return NextResponse.json({ 
+      error: 'Internal Server Error', 
+      details: error.message 
+    }, { status: 500 });
   }
 }
