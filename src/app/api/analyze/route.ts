@@ -18,10 +18,10 @@ export async function POST(request: Request) {
       });
     }
 
-    // Use specific generation config to enforce JSON
+    // Switched to 'gemini-pro' or 'gemini-1.5-pro-latest' as 'gemini-1.5-flash' might be in preview/restricted
+    // Using 'gemini-pro' is generally the most stable public alias
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      generationConfig: { responseMimeType: "application/json" }
+      model: "gemini-pro",
     });
 
     // Construct conversation history for context
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       2. If probability is < 95%, formulate a SINGLE, specific follow-up question to narrow down the diagnosis.
       3. If probability is >= 95% OR if you have enough info, provide the diagnosis, a set of 4-6 natural healing modalities.
       
-      Output Schema:
+      Return ONLY a valid JSON object with this exact structure (do not include Markdown code blocks):
       {
         "sickness": "Name of condition",
         "probability": number,
@@ -56,27 +56,22 @@ export async function POST(request: Request) {
     const responseText = result.response.text();
     
     try {
-      // Attempt to parse directly first
-      const analysis = JSON.parse(responseText);
+      // Clean up markdown code blocks if present
+      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+      const analysis = JSON.parse(cleanJson);
       return NextResponse.json(analysis);
     } catch (parseError) {
       console.error("JSON Parse Error. Raw response:", responseText);
-      
-      // Fallback cleanup if JSON mode didn't work perfectly (rare with responseMimeType set)
-      const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-      try {
-         const analysis = JSON.parse(cleanJson);
-         return NextResponse.json(analysis);
-      } catch (retryError) {
-         throw new Error("Failed to parse AI response");
-      }
+      throw new Error("Failed to parse AI response");
     }
 
   } catch (error: any) {
     console.error('Analysis error details:', error);
+    // Safely handle error object structure
+    const errorMessage = error?.message || 'Unknown error occurred';
     return NextResponse.json({ 
       error: 'Internal Server Error', 
-      details: error.message 
+      details: errorMessage
     }, { status: 500 });
   }
 }
