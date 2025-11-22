@@ -62,7 +62,21 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased text-stone-800 bg-stone-50 relative min-h-screen`}>
         <GoogleAnalytics />
-        {children}
+        <div className="min-h-screen flex flex-col">
+          <main className="flex-1">
+            {children}
+          </main>
+          <footer className="w-full border-t border-stone-200 bg-stone-50/90 py-4 px-4 sm:px-8">
+            <p className="max-w-4xl mx-auto text-center text-[11px] leading-snug text-stone-500">
+              HealingWallpapers.com uses AI to suggest possible conditions and natural healing modalities but{" "}
+              <span className="font-semibold">is not a medical service</span>. It does not provide a diagnosis,
+              treat any disease, or replace advice from a qualified health professional. Always consult your
+              doctor or appropriate licensed provider before changing medications, supplements, or treatment
+              plans, and call local emergency services if you are experiencing severe or life‑threatening
+              symptoms.
+            </p>
+          </footer>
+        </div>
         <div className="fixed bottom-2 right-4 text-xs text-stone-400 opacity-75 pointer-events-none font-mono">
           v{packageJson.version}
         </div>
