@@ -18,7 +18,7 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           background:
-            'radial-gradient(circle at 30% 0%, #bbf7d0 0, #f9fafb 50%, #e0f2fe 100%)',
+            'radial-gradient(circle at 30% 0%, #bbf7d0 0%, #f9fafb 50%, #e0f2fe 100%)',
         }}
       >
         <div

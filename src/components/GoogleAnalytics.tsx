@@ -1,7 +1,7 @@
 'use client';
 
 import Script from 'next/script';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 declare global {
@@ -14,18 +14,13 @@ declare global {
 export default function GoogleAnalytics() {
   const measurementId = process.env.NEXT_PUBLIC_GA_ID;
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  // Only run in production with a configured ID
-  const isEnabled = typeof window !== 'undefined' && measurementId && process.env.NODE_ENV === 'production';
 
   useEffect(() => {
-    if (!isEnabled || !window.gtag) return;
-    const url = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
+    if (!measurementId || typeof window === 'undefined' || !window.gtag) return;
     window.gtag('config', measurementId, {
-      page_path: url,
+      page_path: pathname,
     });
-  }, [isEnabled, measurementId, pathname, searchParams]);
+  }, [measurementId, pathname]);
 
   if (!measurementId) {
     return null;
@@ -52,5 +47,6 @@ export default function GoogleAnalytics() {
     </>
   );
 }
+
 
 
