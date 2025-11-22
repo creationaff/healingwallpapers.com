@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import packageJson from "../../package.json";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: '--font-playfair' });
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-image.png', // We should create a default OG image
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: 'HealingWallpapers.com Preview',
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: "HealingWallpapers.com",
     description: "Natural healing tailored to you. Get your custom recovery wallpaper today.",
-    images: ['/og-image.png'], // Same as OG image
+    images: ['/og-image.png'],
   },
   robots: {
     index: true,
@@ -58,8 +59,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased text-stone-800 bg-stone-50`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans antialiased text-stone-800 bg-stone-50 relative min-h-screen`}>
         {children}
+        <div className="fixed bottom-2 right-4 text-xs text-stone-400 opacity-75 pointer-events-none font-mono">
+          v{packageJson.version}
+        </div>
       </body>
     </html>
   );
