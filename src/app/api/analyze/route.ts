@@ -29,10 +29,10 @@ function ruleBasedFallback(symptoms: string): Analysis {
       probability: 80,
       question: 'Is the pain like a tight band around your head, and does it get worse with stress?',
       modalities: [
-        'Peppermint oil on temples',
-        'Neck and shoulder stretching',
-        'Magnesium supplementation',
-        'Ginger or chamomile tea',
+        'Teas: Ginger, chamomile, or peppermint tea to relax muscles and ease pain.',
+        'Oils & Incense: Peppermint oil on temples; burn lavender or sandalwood incense to soften stress.',
+        'Foods: Magnesium-rich foods (leafy greens, nuts, seeds) and stable blood-sugar meals.',
+        '80/20 Focus: 80% gentle lifestyle tweaks (posture, breaks from screens, hydration), 20% targeted remedies like oils or supplements.',
       ],
       explanation:
         'Your description suggests a tension-type headache. These modalities support muscle relaxation and circulation.',
@@ -46,10 +46,10 @@ function ruleBasedFallback(symptoms: string): Analysis {
       question:
         'Is the discomfort worse after eating certain foods (like bread, dairy, or sugar), and do you feel gassy or bloated?',
       modalities: [
-        'Ginger tea before or after meals',
-        'Light evening meals, avoid eating 2–3 hours before bed',
-        'Probiotic-rich foods (sauerkraut, kimchi, unsweetened yogurt)',
-        'Gentle walking after meals to aid digestion',
+        'Teas: Ginger, fennel, or peppermint tea to support digestion and reduce gas.',
+        'Foods: High‑fiber veggies, lentils, and healthy fats; reduce white sugar and refined flour.',
+        'Oils & Incense: Rub diluted peppermint or fennel oil on the belly; burn frankincense to create a calm, mindful eating space.',
+        '80/20 Focus: 80% slow, mindful eating and consistent whole‑food choices, 20% herbs, teas, and supplements.',
       ],
       explanation:
         'The symptoms point toward sluggish digestion or mild gut imbalance. These natural supports can help reset digestion.',
@@ -63,10 +63,10 @@ function ruleBasedFallback(symptoms: string): Analysis {
       question:
         'How many hours of sleep do you get on average, and do you wake feeling rested or still tired?',
       modalities: [
-        'Regular sleep schedule (same sleep/wake time daily)',
-        'Ashwagandha or rhodiola (adaptogenic herbs, if safe for you)',
-        'Hydration with mineral-rich water ( pinch of sea salt or electrolyte mix )',
-        'Daily light movement or walking outdoors',
+        'Teas: Tulsi (holy basil), rooibos, or lemon balm tea to gently calm and restore.',
+        'Foods: Iron- and B‑vitamin–rich foods (dark greens, beans, eggs if you eat them), plus healthy fats.',
+        'Oils & Incense: Diffuse citrus or rosemary oil; burn uplifting incense like frankincense during morning routine.',
+        '80/20 Focus: 80% consistent sleep, light movement, and hydration; 20% adaptogenic herbs and supplements if appropriate.',
       ],
       explanation:
         'Your symptoms suggest low vitality. Sleep, minerals, and gentle movement are core pillars for restoring energy.',
@@ -79,10 +79,10 @@ function ruleBasedFallback(symptoms: string): Analysis {
     question:
       'Where in your body do you feel the symptoms most strongly, and how long have they been present?',
     modalities: [
-      'Warm herbal tea (ginger, chamomile, or peppermint)',
-      'Adequate hydration throughout the day',
-      'Gentle stretching or yoga for 10–15 minutes',
-      'Mindful breathing exercises to calm the nervous system',
+      'Teas: Gentle daily herbal tea (ginger, chamomile, or peppermint) as a grounding ritual.',
+      'Foods: Mostly whole foods—colorful vegetables, quality protein, and healthy fats; limit ultra‑processed snacks.',
+      'Oils & Incense: Lavender, sandalwood, or frankincense incense/oils to anchor relaxation practices.',
+      '80/20 Focus: 80% simple everyday habits (sleep, food, movement), 20% targeted extras like supplements and treatments.',
     ],
     explanation:
       'Your description is a bit broad, so this is a general balancing protocol while we clarify your symptoms.',
@@ -115,7 +115,11 @@ export async function POST(request: Request) {
         Task:
         1. Estimate the probability (0-100%) that you have correctly identified the condition based ONLY on the information provided.
         2. If probability is < 95%, formulate a SINGLE, specific follow-up question to narrow down the diagnosis.
-        3. If probability is >= 95% OR if you have enough info, provide the diagnosis, a set of 4-6 natural healing modalities.
+        3. If probability is >= 95% OR if you have enough info, provide the diagnosis, and 4–6 natural healing modalities that together cover:
+           - at least one specific herbal TEA or infusion recommendation,
+           - at least one FOOD pattern (what to eat more of, or less of),
+           - at least one INCENSE / essential oil or scent to burn or diffuse,
+           - at least one \"80/20\" style guidance line (what 80% to focus on daily vs the 20% extras).
         
         IMPORTANT: Return raw JSON only. No Markdown. No code blocks.
         
@@ -123,7 +127,7 @@ export async function POST(request: Request) {
           "sickness": "Name of condition",
           "probability": number,
           "question": "Follow up question string (null if probability >= 95)",
-          "modalities": ["Modality 1", "Modality 2", ...],
+          "modalities": ["Short modality line 1", "Short modality line 2", ...],
           "explanation": "Brief explanation of why this diagnosis fits."
         }
       `;
