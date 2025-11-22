@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import packageJson from "../../package.json";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-inter' });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: '--font-playfair' });
@@ -60,6 +61,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} font-sans antialiased text-stone-800 bg-stone-50 relative min-h-screen`}>
+        <GoogleAnalytics />
         {children}
         <div className="fixed bottom-2 right-4 text-xs text-stone-400 opacity-75 pointer-events-none font-mono">
           v{packageJson.version}
