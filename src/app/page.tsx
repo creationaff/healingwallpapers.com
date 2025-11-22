@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import SymptomForm from '@/components/SymptomForm';
 import DiagnosisResult from '@/components/DiagnosisResult';
+import Logo from '@/components/Logo';
 
 interface AnalysisResult {
   sickness: string;
@@ -116,9 +117,7 @@ export default function Home() {
     <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center">
       <div className="max-w-4xl w-full flex flex-col items-center">
         <header className="text-center mb-12 space-y-4 animate-fade-in">
-          <h1 className="text-5xl sm:text-6xl font-bold text-emerald-800 font-playfair tracking-tight">
-            HealingWallpapers<span className="text-emerald-600">.com</span>
-          </h1>
+          <Logo />
           <p className="text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed">
             Discover natural healing modalities tailored to your symptoms and receive a custom wallpaper to guide your daily recovery.
           </p>
