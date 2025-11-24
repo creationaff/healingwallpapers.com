@@ -36,11 +36,13 @@ export default function Icon() {
         >
           <span
             style={{
-              fontSize: 30,
+              fontSize: 22,
               color: '#ecfdf5',
+              fontWeight: 800,
+              letterSpacing: 1,
             }}
           >
-            ✺
+            HW
           </span>
         </div>
       </div>
