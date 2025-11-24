@@ -18,32 +18,47 @@ export default function Icon() {
           alignItems: 'center',
           justifyContent: 'center',
           background:
-            'radial-gradient(circle at 30% 0%, #bbf7d0 0%, #f9fafb 50%, #e0f2fe 100%)',
+            'radial-gradient(circle at 25% 20%, #34d399 0%, #0f172a 70%, #020617 100%)',
         }}
       >
         <div
           style={{
-            height: 44,
-            width: 44,
-            borderRadius: 20,
+            height: 48,
+            width: 48,
+            borderRadius: 18,
             background:
-              'linear-gradient(135deg, #22c55e, #0d9488)',
+              'linear-gradient(135deg, rgba(16,185,129,0.95), rgba(6,182,212,0.9))',
+            border: '2px solid rgba(255,255,255,0.3)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 8px 18px rgba(0,0,0,0.25)',
+            position: 'relative',
+            boxShadow: '0 10px 24px rgba(0,0,0,0.45)',
           }}
         >
           <span
             style={{
-              fontSize: 22,
+              fontSize: 24,
+              fontWeight: 600,
+              letterSpacing: '0.08em',
               color: '#ecfdf5',
-              fontWeight: 800,
-              letterSpacing: 1,
+              fontFamily: 'serif',
             }}
           >
             HW
           </span>
+          <div
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 10,
+              width: 10,
+              height: 10,
+              background: 'radial-gradient(circle, #fef3c7 0%, rgba(253,230,138,0.4) 70%, transparent 100%)',
+              borderRadius: '50%',
+              boxShadow: '0 0 6px rgba(252,211,77,0.8)',
+            }}
+          />
         </div>
       </div>
     ),
@@ -53,5 +68,4 @@ export default function Icon() {
     }
   );
 }
-
 
